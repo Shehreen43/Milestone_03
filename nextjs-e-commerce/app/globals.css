@@ -69,4 +69,7 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  .hoverEffect {
+    @apply hover:shadow-md transition-all duration-200 overflow-hidden
+  }
 }
