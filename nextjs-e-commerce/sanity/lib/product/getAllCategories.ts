@@ -3,11 +3,7 @@ import { sanityFetch } from "../live";
 
 export const getAllCategories = async () => {
   // Define Query
-  const ALL_CATEGORIES_QUERY = defineQuery(
-    `
-      *[_type == "categories"] | order(name asc)
-    `
-  );
+  const ALL_CATEGORIES_QUERY = defineQuery(`*[_type == "category"] | order(name asc) `);
 
   try {
     // Use sanityFetch to send the query

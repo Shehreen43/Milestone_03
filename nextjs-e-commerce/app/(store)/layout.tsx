@@ -27,17 +27,17 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider dynamic>
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <main className="max-w-5xl mx-auto">
-          <Header />
-        {children}
-        </main>
-        <SanityLive />
-      </body>
-    </html>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <main className="max-w-5xl mx-auto">
+            <Header />
+            {children}
+          </main>
+          <SanityLive />
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

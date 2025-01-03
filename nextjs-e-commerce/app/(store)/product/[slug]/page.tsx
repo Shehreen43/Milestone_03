@@ -1,3 +1,4 @@
+import AddToBasketButton from '@/components/AddToBasketButton';
 import { imageUrl } from '@/lib/imageUrl';
 import { getAllProductsBySlug } from '@/sanity/lib/product/getAllProductsBySlug';
 import { PortableText } from 'next-sanity';
@@ -44,6 +45,10 @@ async function ProductPage ({params,}: {params:Promise<{slug: string;}>}) {
                <div className='prose max-w-none mb-6'>
                   {Array.isArray(product.description) && (<PortableText  value={product.description}/>)}
                </div>
+             </div>
+
+             <div className='mt-6'>
+               <AddToBasketButton product={product} disabled={isOutOfStock}/>
              </div>
           </div>
        </div>
