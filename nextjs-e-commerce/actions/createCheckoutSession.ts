@@ -1,10 +1,10 @@
 "use server";
 
 import { imageUrl } from "@/lib/imageUrl";
-import stripe from "@/lib/stripe"; // Ensure `stripe` is exported from `lib/stripe.ts`
+import stripe from "@/lib/stripe"; 
 import { BasketItem } from "@/store/store";
 import * as z from "zod";
-import Stripe from "stripe"; // Import Stripe for types
+import Stripe from "stripe"; 
 
 export type Metadata = {
   orderNumber: string;

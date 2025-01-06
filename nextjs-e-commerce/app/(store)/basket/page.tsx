@@ -16,7 +16,7 @@ const BasketPage = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const clearBasket = useBasketStore((state) => state.clearBasket);
+  // const clearBasket = useBasketStore((state) => state.clearBasket);
 
   // Ensure useEffect is always called to set isClient
   useEffect(() => {
@@ -117,13 +117,13 @@ const BasketPage = () => {
             </p>
           </div>
 
-          {/* Clear Basket Button */}
+          {/* Clear Basket Button
           <button
             onClick={() => clearBasket()}
             className="mt-4 w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Clear Basket
-          </button>
+          </button> */}
 
           {isSignedIn ? (
             <button
