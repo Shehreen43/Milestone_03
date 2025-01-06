@@ -4,6 +4,7 @@ import useBasketStore from "@/store/store";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
+
 const SuccessPage = () => {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber");
@@ -37,7 +38,28 @@ const SuccessPage = () => {
           Thank You for your Order!
         </h1>
            
-        
+        <div className="border-t border-b border-gray-200 py-6 mb-6">
+          
+          <p className="text-lg text-gray-700 mb-4"> 
+            Your order has been confirmed and will be shipped shortly.
+          </p>
+
+          <div className="space-y-2">{
+          orderNumber && (<p className="text-gray-600 flex items-center space-x-5">
+            <span>Order Number:</span> <span className="font-mono text-sm text-green-600">{orderNumber}</span>
+          </p> )}
+
+         {/* {sessionId && ( <p className="text-gray-600 flex justify-between">
+         <span>Transaction ID:</span> <span className="font-mono text-sm">{transactionId}</span>
+         </p> )} */}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-gray-600">
+           
+          </p>
+        </div>
       </div>
     </div>
   );
