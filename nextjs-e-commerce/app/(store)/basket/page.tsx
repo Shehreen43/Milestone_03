@@ -16,15 +16,15 @@ const BasketPage = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const clearBasket = useBasketStore((state) => state.clearBasket);
 
-
-  //wait for client to mount
+  // Ensure useEffect is always called to set isClient
   useEffect(() => {
-    setIsClient(true)
+    setIsClient(true);
   }, []);
-  
+
   if (!isClient) {
-    return <Loader />
+    return <Loader />;
   }
 
   if (groupItems.length === 0) {
@@ -35,29 +35,30 @@ const BasketPage = () => {
       </div>
     );
   }
- const handleCheckout = async () => {
-  if (!isSignedIn) return;
-  setIsLoading(true);
 
-  try {
+  const handleCheckout = async () => {
+    if (!isSignedIn) return;
+    setIsLoading(true);
 
-    const metadata: Metadata = {
-      orderNumber: crypto.randomUUID(),
-      customerName: user?.fullName ?? "Unknown",
-      customerEmail: user?.emailAddresses[0].emailAddress ?? "Unknown",
-      clerkUserId: user!.id
-    };
-    const CheckoutUrl = await createCheckoutSession(groupItems, metadata);
-     
-    if (!CheckoutUrl) {
-      window.location.href = CheckoutUrl;
+    try {
+      const metadata: Metadata = {
+        orderNumber: crypto.randomUUID(),
+        customerName: user?.fullName ?? "Unknown",
+        customerEmail: user?.emailAddresses[0]?.emailAddress ?? "Unknown", // Fallback to "Unknown" if null or undefined
+        clerkUserId: user!.id,
+      };
+
+      const CheckoutUrl = await createCheckoutSession(groupItems, metadata);
+
+      if (CheckoutUrl) {
+        window.location.href = CheckoutUrl;
+      }
+    } catch (error) {
+      console.error("Error creating checkout session", error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Error creating checkout session",error)
-  } finally {
-    setIsLoading(false)
-  }
- };
+  };
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
@@ -91,8 +92,7 @@ const BasketPage = () => {
                     {item.product.name}
                   </h2>
                   <p className="text-sm sm:text-base">
-                    Price: $
-                    {((item.product.price ?? 0) * item.quantity).toFixed(2)}
+                    Price: ${item.product.price}
                   </p>
                 </div>
               </div>
@@ -105,34 +105,41 @@ const BasketPage = () => {
         </div>
 
         <div className="w-full lg:w-80 lg:sticky lg:top-4 h-fit bg-white p-6 border rounded order-first lg:order-last fixed bottom-0 left-0 lg:left-auto">
-           <h3 className="text-xl font-semibold">Order Summary</h3>
-           <div className="mt-4 space-y-2">
-             <p className="flex justify-between">
+          <h3 className="text-xl font-semibold">Order Summary</h3>
+          <div className="mt-4 space-y-2">
+            <p className="flex justify-between">
               <span>Items:</span>
-               <span>{groupItems.reduce((total, item) => total * item.quantity, 0)}</span>
-               </p>
-                <p className="flex justify-between text-2xl font-bold border-t pt-2">
-                  <span>Total:</span>
-                  <span>${useBasketStore.getState().getTotalPrice().toFixed(2)}</span>
-                </p>
-             
-           </div>
-           {isSignedIn ? (
-            <button onClick={handleCheckout}
-            disabled={isLoading}
-            className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400">
+              <span>{groupItems.reduce((total, item) => total + item.quantity, 0)}</span>
+            </p>
+            <p className="flex justify-between text-2xl font-bold border-t pt-2">
+              <span>Total:</span>
+              <span>${useBasketStore.getState().getTotalPrice().toFixed(2)}</span>
+            </p>
+          </div>
+
+          {/* Clear Basket Button */}
+          <button
+            onClick={() => clearBasket()}
+            className="mt-4 w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Clear Basket
+          </button>
+
+          {isSignedIn ? (
+            <button
+              onClick={handleCheckout}
+              disabled={isLoading}
+              className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+            >
               {isLoading ? "Processing..." : "Checkout"}
             </button>
-           ) : (
-           <SignInButton mode="modal">
-             <button className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-             Sign in to Checkout
-             </button>
-           </SignInButton>
-           )}
-        </div>
-        <div className="h-64 lg:h-0">
-{/*  */}
+          ) : (
+            <SignInButton mode="modal">
+              <button className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Sign in to Checkout
+              </button>
+            </SignInButton>
+          )}
         </div>
       </div>
     </div>
