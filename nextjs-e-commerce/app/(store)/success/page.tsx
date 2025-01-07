@@ -1,6 +1,8 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import useBasketStore from "@/store/store";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,7 +14,7 @@ const SuccessPage = () => {
 
   useEffect(() => {
     if (orderNumber) {
-      clearBasket(); // Call the function here
+      clearBasket(); 
     }
   }, [orderNumber, clearBasket]);
 
@@ -57,8 +59,17 @@ const SuccessPage = () => {
 
         <div className="space-y-4">
           <p className="text-gray-600">
-           
+           A confirmation email has been sent to your registered email address.
           </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button className="bg-green-600 hover:bg-green-700">
+              <Link href={'/orders'}>View Order Details</Link>
+            </Button>
+            <Button asChild variant={'outline'} className="border">
+              <Link href={'/'}>Continue Shopping</Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

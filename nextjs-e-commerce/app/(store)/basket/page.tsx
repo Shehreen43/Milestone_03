@@ -16,9 +16,8 @@ const BasketPage = () => {
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // const clearBasket = useBasketStore((state) => state.clearBasket);
+  const clearBasket = useBasketStore((state) => state.clearBasket);
 
-  // Ensure useEffect is always called to set isClient
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -50,9 +49,13 @@ const BasketPage = () => {
 
       const CheckoutUrl = await createCheckoutSession(groupItems, metadata);
 
-      if (CheckoutUrl) {
+
+      if (typeof CheckoutUrl === "string") {
         window.location.href = CheckoutUrl;
+      } else {
+        console.error("Invalid Checkout URL:", CheckoutUrl);
       }
+
     } catch (error) {
       console.error("Error creating checkout session", error);
     } finally {
@@ -117,13 +120,13 @@ const BasketPage = () => {
             </p>
           </div>
 
-          {/* Clear Basket Button
+          {/* Clear Basket Button */}
           <button
             onClick={() => clearBasket()}
             className="mt-4 w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Clear Basket
-          </button> */}
+          </button>
 
           {isSignedIn ? (
             <button

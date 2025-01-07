@@ -28,9 +28,14 @@ const MetadataSchema = z.object({
 
 function constructUrl(path: string): string {
   const baseUrl =
-    `https://${process.env.VERCEL_URL}` ||
-    process.env.NEXT_PUBLIC_PUBLIC_URL ||
-    "http://localhost:3000";
+    process.env.NODE_ENV === "production"
+      ? `https://${process.env.VERCEL_URL || "your-production-domain.com"}`
+      : process.env.NEXT_PUBLIC_PUBLIC_URL || "http://localhost:3000";
+
+  if (!baseUrl.startsWith("http")) {
+    throw new Error(`Invalid base URL: ${baseUrl}`);
+  }
+
   return `${baseUrl}${path}`;
 }
 
@@ -103,8 +108,8 @@ export async function createCheckoutSession(
         `/success?session_id={CHECKOUT_SESSION_ID}&orderNumber=${validatedMetadata.orderNumber}`
       ),
       cancel_url: constructUrl("/basket"),
-      line_items: mapLineItems(items),
-    };
+      line_items: mapLineItems(items),      
+      };
 
     const session = await stripe.checkout.sessions.create(sessionConfig);
     return session.url;
