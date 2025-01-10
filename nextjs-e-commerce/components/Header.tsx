@@ -21,19 +21,19 @@ const Header = () => {
 
   const createClerkPasskey = async () => {
     if (!user) return;
-
+  
     try {
       const passkeyResponse = await user.createPasskey();
       console.log("Passkey created successfully:", passkeyResponse);
-    } catch (err: any) {
-      if (err.code === "passkey_registration_cancelled") {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes("passkey_registration_cancelled")) {
         console.warn("User canceled passkey registration.");
       } else {
         console.error("Unexpected error:", err);
       }
     }
   };
-
+  
   return (
     <header className="flex flex-wrap justify-between items-center px-4 py-2">
       <div className="flex w-full flex-wrap justify-between items-center">

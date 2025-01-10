@@ -1,11 +1,10 @@
 import stripe from "@/lib/stripe";
-import backendClient from "@/sanity/lib/backendClient"; // Ensure this points to your Sanity client
+import backendClient from "@/sanity/lib/backendClient";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import crypto from "crypto";
 import { Metadata } from "@/actions/createCheckoutSession";
-
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -13,13 +12,13 @@ export async function POST(req: NextRequest) {
   const sig = headerList.get("stripe-signature");
 
   if (!sig) {
+    console.error("Missing Stripe signature.");
     return NextResponse.json({ error: "No signature" }, { status: 400 });
   }
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  
   if (!webhookSecret) {
-    console.log("Stripe webhook secret is not set");
+    console.error("Stripe webhook secret is not set.");
     return NextResponse.json(
       { error: "Stripe webhook secret is not set" },
       { status: 400 }
@@ -37,6 +36,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  console.log("Webhook received:", event.type);
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
       );
     }
   }
-console.log("Webhook received:", event.type);
 
   return NextResponse.json({ received: true });
 }
@@ -68,9 +67,10 @@ async function createOrderInSanity(session: Stripe.Checkout.Session) {
     total_details,
   } = session;
 
-  if (!metadata) {
-    throw new Error("Metadata is missing in the session.");
-  }
+  // if (!metadata) {
+  //   console.error("Metadata missing in session:", session);
+  //   throw new Error("Stripe session metadata is missing.");
+  // }
 
   const { orderNumber, customerName, customerEmail, clerkUserId } = metadata as Metadata;
 
@@ -79,37 +79,47 @@ async function createOrderInSanity(session: Stripe.Checkout.Session) {
     expand: ["data.price.product"],
   });
 
-  if (!lineItemsWithProduct.data.length) {
-    console.warn("No line items found for session:", id);
-    throw new Error("Line items are missing in the session.");
-  }
+  // if (!lineItemsWithProduct?.data?.length) {
+  //   console.error("No line items found for session:", id);
+  //   throw new Error("Line items are missing in the session.");
+  // }
 
-  // Debugging: Log line items to verify structure
-  console.log("Line items with product details:", lineItemsWithProduct.data);
+  // console.log("Line items with product details:", lineItemsWithProduct.data);
 
-  // Map line items to products for the order
-  const sanityProducts = lineItemsWithProduct.data.map((item) => {
-    const product = item.price?.product as Stripe.Product;
-    if (!product?.metadata?.id) {
-      console.warn("Product metadata ID is missing for item:", item);
-      throw new Error("Product metadata ID is missing.");
-    }
+  // Map line items to Sanity product references
+  // const sanityProducts = lineItemsWithProduct.data.map((item) => {
+  const sanityProducts = lineItemsWithProduct.data.map((item) => ({
+    _key: crypto.randomUUID(),
+    product: {
+      _type: "reference",
+      _ref: (item.price?.product as Stripe.Product)?.metadata?.id, 
+    },
+    quantity: item.quantity || 0,
+  }))
 
-    return {
-      _key: crypto.randomUUID(),
-      product: {
-        _type: "reference",
-        _ref: product.metadata.id, // Ensure this matches a valid Sanity document ID
-      },
-      quantity: item.quantity || 0,
-    };
-  });
+    // const product = item.price?.product as Stripe.Product;
 
-  if (!sanityProducts.length) {
-    throw new Error("Sanity products array is empty. Check Stripe product metadata.");
-  }
+    // if (!product?.metadata?.id) {
+    //   console.error("Product metadata ID is missing for item:", item);
+    //   throw new Error("Product metadata ID is missing.");
+    // }
 
-  // Create the order in your backend (Sanity)
+    // return {
+      // _key: crypto.randomUUID(),
+      // product: {
+      //   _type: "reference",
+      //   _ref: product.metadata.id, 
+    //   },
+    //   quantity: item.quantity || 0,
+    // };
+  // });
+  
+
+  // if (!sanityProducts.length) {
+  //   throw new Error("Sanity products array is empty. Check Stripe product metadata.");
+  // }
+
+  // Create the order in Sanity
   const order = await backendClient.create({
     _type: "order",
     orderNumber,
@@ -117,7 +127,7 @@ async function createOrderInSanity(session: Stripe.Checkout.Session) {
     stripePaymentIntentId: payment_intent,
     customerName,
     stripeCustomerId: customer,
-    clerkUserId,
+    clerkUserId: clerkUserId,
     email: customerEmail,
     currency,
     amountDiscount: total_details?.amount_discount

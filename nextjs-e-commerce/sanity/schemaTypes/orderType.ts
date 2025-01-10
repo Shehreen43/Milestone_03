@@ -98,6 +98,7 @@ export const orderType = defineType({
           { title: "Cancelled", value: "cancelled" },
         ],
       },
+      initialValue: "pending", 
     }),
     defineField({
       name: "orderDate",

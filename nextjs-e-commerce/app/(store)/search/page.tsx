@@ -2,24 +2,26 @@ import ProductGrid from "@/components/ProductGrid";
 import { Product } from "@/sanity.types";
 import { searchProductByName } from "@/sanity/lib/product/searchProductByName";
 
-async function SearchPage({
+export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { query: string };
+  searchParams: Promise<{ query: string }>;
 }) {
-  const { query } = searchParams;
+  // Await the resolved value of searchParams
+  const { query } = await searchParams;
+
+  // Fetch products based on the query
   const response = await searchProductByName(query);
 
-  // Check if response is an array or an object with 'data'
   let products: Product[] = [];
 
   if (Array.isArray(response)) {
     products = response; // If it's an array, use it directly
-  } else if (response.data) {
+  } else if (response?.data) {
     products = response.data; // If it's an object with 'data', use that
   }
 
-  if (products.length === 0) {
+  if (!query || products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-top min-h-screen bg-gray-100 p-4">
         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-4xl">
@@ -45,5 +47,3 @@ async function SearchPage({
     </div>
   );
 }
-
-export default SearchPage;
