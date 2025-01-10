@@ -55,6 +55,7 @@ export const orderType = defineType({
               title: "Product Bought",
               type: "reference",
               to: [{ type: "product" }],
+              validation: (Rule) => Rule.required(),
             }),
             defineField({
               name: "quantity",
@@ -81,7 +82,7 @@ export const orderType = defineType({
     defineField({
       name: "amountDiscount",
       title: "Amount Discount",
-      type: "number", 
+      type: "number",
       validation: (Rule) => Rule.min(0),
     }),
     defineField({
@@ -117,31 +118,8 @@ export const orderType = defineType({
       return {
         title: `${select.customerName} (${select.orderNumber})`,
         subtitle: `${select.totalPrice} ${select.currency}, ${select.email}`,
-        media: BasketIcon, // You can customize this if needed
+        media: BasketIcon,
       };
     },
   },
 });
-
-
-// preview: {
-//     select: {
-    //   product: "product.name",
-    //   quantity: "quantity",
-    //   image: "product.image",
-    //   price: "product.price",
-    //   currency: "product.currency",
-//     },
-//     prepare(select: {
-//       product: string;
-//       quantity: number;
-//       image: string;
-//       price: number;
-//       currency: string;
-//     }) {
-//       return {
-//         title: ${select.product}, ${select.quantity},
-//         subtitle: Total: ${select.price * select.quantity} ${select.currency},
-//         media: select.image,
-//       };
-//     },

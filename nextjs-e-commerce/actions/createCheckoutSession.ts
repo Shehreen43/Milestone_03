@@ -18,13 +18,13 @@ export type GroupedBasketItem = {
   quantity: number;
 };
 
-// Metadata schema for validation
-const MetadataSchema = z.object({
-  orderNumber: z.string(),
-  customerName: z.string(),
-  customerEmail: z.string().email(),
-  clerkUserId: z.string(),
-});
+// // Metadata schema for validation
+// const MetadataSchema = z.object({
+//   orderNumber: z.string(),
+//   customerName: z.string(),
+//   customerEmail: z.string().email(),
+//   clerkUserId: z.string(),
+// });
 
 function constructUrl(path: string): string {
   const baseUrl =
@@ -82,7 +82,8 @@ export async function createCheckoutSession(
   metadata: Metadata
 ) {
   try {
-    const validatedMetadata = MetadataSchema.parse(metadata);
+    // const validatedMetadata = MetadataSchema.parse(metadata);
+    const validatedMetadata = metadata
     validateBasket(items);
 
     let customerId: string | undefined;
@@ -98,6 +99,7 @@ export async function createCheckoutSession(
     }
 
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
+   
       customer: customerId,
       customer_creation: customerId ? undefined : "always",
       customer_email: !customerId ? validatedMetadata.customerEmail : undefined,
